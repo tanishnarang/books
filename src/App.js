@@ -1,25 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+// import BookCreate from "./BookCreate";
+import { useState } from "react";
+import axios from "axios";
+import BookCreate from "./components/BookCreate";
+import BookList from "./components/BookList";
 
-function App() {
+export default function App() {
+  const [books, setBooks] = useState([]);
+
+  const deleteBookById = (id) => {
+    const updatedBooks = books.filter((book) => {
+      return book.id !== id;
+    });
+
+    setBooks(updatedBooks);
+  };
+
+  const createBook = async (title) => {
+    const response = await axios.post("http://localhost:3001/books", { title });
+
+    const updatedBooks = [...books, response.data];
+
+    setBooks(updatedBooks);
+    console.log(updatedBooks);
+  };
+
+  const editBookById = (id, newTitle) => {
+    const updatedBooks = books.map((book) => {
+      if (book.id === id) return { ...book, title: newTitle };
+
+      return book;
+    });
+
+    setBooks(updatedBooks);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <h1>Reading list</h1>
+      <BookList books={books} ondelete={deleteBookById} onEdit={editBookById} />
+      <BookCreate onCreate={createBook} />
     </div>
   );
 }
-
-export default App;
